@@ -18,7 +18,7 @@ This is a backend Payroll system built with Node.js, Express.js, and PostgreSQL.
 
 1. Clone the Repository
 
-  git clone https://github.com/your-username/your-repo-name.git
+  git clone https://github.com/crazycentury/Payroll-System.git
   cd your-repo-name
 
 2. Install Dependencies

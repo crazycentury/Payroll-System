@@ -3,10 +3,15 @@ Payroll-System API – Express.js
 This is a backend Payroll system built with Node.js, Express.js, and PostgreSQL. It includes essential payroll features such as:
 
   ▪️JWT-based Authentication
+  
   ▪️Attendance (Clock In / Clock Out)
+  
   ▪️Overtime Management
+  
   ▪️Reimbursement Submission
+  
   ▪️Payroll & Payslip Generation
+  
   ▪️Period Management
 
 🚀 Getting Started
@@ -183,7 +188,6 @@ Knex.js (SQL query builder)
 
 JWT Authentication
 
-Mocha/Chai (for testing)
 
 📄 License
 

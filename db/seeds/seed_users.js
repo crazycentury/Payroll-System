@@ -7,7 +7,7 @@ exports.seed = async function(knex) {
 
   const salt = await bcrypt.genSalt(10);
 
-  // 100 Karyawan
+  // 100 Employees
   const employees = await Promise.all(
     Array.from({ length: 100 }).map(async (_, i) => {
       const name = faker.internet.username();

@@ -80,10 +80,12 @@ router.post('/clock-out', authRequired, async (req, res) => {
     const diffMinutes = Math.floor(diffMs / 60000);
 
     // Skip 8-hour check if test=true
+    //for testing
     const isTestMode = req.query.test === 'true';
     if (!isTestMode && diffMinutes < 480) {
       return res.status(400).json({ message: 'Minimum work time is 8 hours (480 minutes)' });
     }
+    //end
 
     const [updated] = await db('attendances')
       .where({ id: record.id })

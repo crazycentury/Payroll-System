@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { authRequired, adminOnly } = require('../middleware/authMiddleware');
-const db = require('../db/knex'); // atau sesuai dengan koneksi knex kamu
+const db = require('../db/knex');
 const dayjs = require('dayjs');
 
 // endpoint POST /api/payroll-periods

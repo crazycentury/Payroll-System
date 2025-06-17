@@ -5,14 +5,14 @@ const { authRequired, adminOnly } = require('../middleware/authMiddleware');
 
 const WORK_HOURS_PER_DAY = 8;
 
-// Helper untuk menghitung jumlah hari kerja (Senin–Jumat)
+// Function for count workdays 
 function countWorkdays(startDateStr, endDateStr) {
   const startDate = new Date(startDateStr);
   const endDate = new Date(endDateStr);
   let workdays = 0;
 
   for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
-    const day = date.getDay(); // 0: Minggu, 6: Sabtu
+    const day = date.getDay(); // 0: Sunday, 6: Saturday
     if (day >= 1 && day <= 5) {
       workdays++;
     }
@@ -36,7 +36,7 @@ router.post('/run', authRequired, adminOnly, async (req, res) => {
       return res.status(400).json({ message: 'No active unprocessed payroll period found' });
     }
 
-    // 2. Cek jika payslip sudah ada
+    // 2. Check duplicate payslips
     const existingPayslips = await db('payslips')
       .where('payroll_period_id', period.id)
       .first();
@@ -45,13 +45,13 @@ router.post('/run', authRequired, adminOnly, async (req, res) => {
       return res.status(400).json({ message: 'Payroll already run for this period' });
     }
 
-    // 3. Hitung jumlah hari kerja (Senin–Jumat) pada periode
+    // 3. Count workdays 
     const totalWorkDays = countWorkdays(period.start_date, period.end_date);
     if (totalWorkDays === 0) {
       return res.status(400).json({ message: 'Payroll period has no working days (Mon-Fri)' });
     }
 
-    // 4. Ambil user yang punya attendance dalam periode
+    // 4. Get users who have attendaces during this 
     const users = await db('attendances')
       .distinct('user_id')
       .whereBetween('date', [period.start_date, period.end_date]);
@@ -59,7 +59,7 @@ router.post('/run', authRequired, adminOnly, async (req, res) => {
     for (const user of users) {
       const userId = user.user_id;
 
-      // 5. Ambil salary user
+      // 5. Get user salary
       const userData = await db('users').where({ id: userId }).first();
       const baseSalary = userData.salary ? parseFloat(userData.salary) : 0;
 
@@ -84,14 +84,14 @@ router.post('/run', authRequired, adminOnly, async (req, res) => {
         .sum('amount');
       const reimbursementAmount = parseFloat(reimbursementTotal[0].sum || 0);
 
-      // 9. Perhitungan
+      // 9. Calculation
       const proratedSalary = (attendanceDays / totalWorkDays) * baseSalary;
       const hourlyRate = baseSalary / (totalWorkDays * WORK_HOURS_PER_DAY);
       const overtimePay = overtimeHours * hourlyRate * 2;
 
       const totalTakeHome = proratedSalary + overtimePay + reimbursementAmount;
 
-      // 10. Simpan payslip
+      // 10. Insert to table
       await db('payslips').insert({
         user_id: userId,
         payroll_period_id: period.id,
@@ -106,7 +106,7 @@ router.post('/run', authRequired, adminOnly, async (req, res) => {
       });
     }
 
-    // 11. Tandai periode sudah diproses
+    // 11. Change is_processed = true
     await db('payroll_periods')
       .where({ id: period.id })
       .update({ is_processed: true, updated_at: new Date() });

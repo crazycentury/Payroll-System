@@ -27,7 +27,8 @@ router.post('/', authRequired, async (req, res) => {
         if (!isWeekend && (!attendance || !attendance.clock_out)) {
         return res.status(400).json({ message: 'You must clock out before submitting overtime on weekdays' });
         }
-        // Cek jika lembur sudah diajukan hari ini
+
+        // Check if already request overtime
         const existing = await db('overtimes')
         .where({ user_id: userId, date: todayDate })
         .first();
@@ -36,7 +37,7 @@ router.post('/', authRequired, async (req, res) => {
         return res.status(400).json({ message: 'Overtime already submitted for today' });
         }
 
-        // Simpan lembur
+        // Insert to table
         const [created] = await db('overtimes')
         .insert({
             user_id: userId,
